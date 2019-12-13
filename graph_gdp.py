@@ -4,7 +4,7 @@
 #by PatZap 
 
 """
-my attempt to construct two graphs using beautiful soup to parse the Result and Matplotlib to graph it. I made two fucntions
+my attempt to construct two graphs using beautiful soup to parse the Result and Matplotlib to graph it. I made two functions
 of gdp_share are ppp to split the Results Sets so I can carefully organize each plot points for the two graphs 
 
 """
@@ -25,19 +25,15 @@ def gdp_nominal():
     results = [] #put all data within the results lists
     for row in parse_data():
         country = row.find('td', class_ = 'name').text
-        gdp_share = row.find('td', class_ = 'data1').text
-        #share = row.find('td', class_ = 'data1').text
-        #ppp = row.find_all('td', class_ = 'data1')[6].text.strip() #indicated the row being parsed is the of the 6 index.
-        #results.append([country, share]) #append each looped data and convert it to text readible. 
-        results.append([country, gdp_share])
+        gdp_nominal = row.find('td', class_ = 'data1').text
+        results.append([country, gdp_nominal])
     return results
-
 
 def gdp_ppp():
     results = []
     for row in parse_data():
         country = row.find('td', class_ = 'name').text
-        gdp_share = row.find_all('td', class_ = 'data1')[4].text.strip() #indicate the row being parsed is the of the 6 index. 
+        gdp_share = row.find_all('td', class_ = 'data')[3].text.strip() #indicate the row being parsed is the of the 3rd index. 
         results.append([country, gdp_share])
     return results
   
@@ -46,25 +42,19 @@ data1['SHARE NOMINAL'] = data1['SHARE NOMINAL'].str.replace(',', '').astype(floa
 print(data1.dtypes)
 data1 = data1.sort_values('SHARE NOMINAL', ascending = False).head(10) #sort top 20 values by share.
 
-#repeated the same thing as with GDP SHARE dataframe
-
-data2 = pd.DataFrame(gdp_ppp(), columns = ['COUNTRY', 'SHARE PPP'])
-
-if data2['SHARE PPP'] is 'Venuzuela':
-    data2['SHARE PPP'] = data2['SHARE PPP'].str.replace('-', '0')#.astype('Int64')
-else:
-    data2['SHARE PPP'].astype(int)
-#data2['SHARE PPP'] = data2['SHARE PPP'],
-#data2.drop('COUNTRY', axis = 1)
+#repeated the same thing as with GDP PPP dataframe
+data2 = pd.DataFrame(gdp_ppp(), columns = ['COUNTRY', 'GDP PPP'])
+data2['GDP PPP'] = data2['GDP PPP'].str.replace('-', '0')
+data2['GDP PPP'] = data2['GDP PPP'].str.replace(',', '').astype(float)
+data2 = data2.sort_values('GDP PPP', ascending = False).head(10) 
 print(data2.dtypes)
-data2 = data2.sort_values('SHARE PPP', ascending = True).head(10) 
-print(data2)
 
-#data1.to_csv('SHARE_GDP.xlsx', sheet_name = 'DATA', index = False) #converts data into a csv file.
-#data2.to_csv('PPP.xlsx', sheet_name = 'DATA1', index = False) 
-"""
+#converts dataset into a graph 
 data1.plot(x ='COUNTRY', y='SHARE NOMINAL', kind = 'bar')
-data2.plot(x ='COUNTRY', y='SHARE PPP', kind = 'bar')
-plt.show()
-"""
+data2.plot(x ='COUNTRY', y='GDP PPP', kind = 'bar')
+plt.show() 
+
+data1.to_csv('SHARE_GDP.xlsx', sheet_name = 'DATA', index = False) #converts data into a csv file.
+data2.to_csv('PPP.xlsx', sheet_name = 'DATA1', index = False) 
+
 
